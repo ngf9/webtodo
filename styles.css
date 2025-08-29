@@ -81,6 +81,7 @@ body::before {
     z-index: -1;
 }
 
+
 /* Utility Classes */
 .hidden {
     display: none !important;
@@ -377,13 +378,14 @@ body::before {
     display: flex;
     align-items: center;
     padding: var(--spacing-md) var(--spacing-lg);
+    padding-right: calc(var(--spacing-lg) + 80px); /* Space for action buttons */
     margin-bottom: var(--spacing-sm);
     background: rgba(30, 30, 30, 0.5);
     backdrop-filter: blur(5px);
     border: 1px solid rgba(50, 50, 50, 0.3);
     border-radius: 12px;
     transition: all var(--transition-normal);
-    cursor: pointer;
+    cursor: move;
     position: relative;
     overflow: hidden;
 }
@@ -412,6 +414,7 @@ body::before {
 .todo-checkbox {
     width: 24px;
     height: 24px;
+    margin-left: var(--spacing-lg);
     margin-right: var(--spacing-md);
     cursor: pointer;
     position: relative;
@@ -472,6 +475,57 @@ body::before {
     user-select: none;
 }
 
+/* Todo Actions */
+.todo-actions {
+    position: absolute;
+    top: var(--spacing-sm);
+    right: var(--spacing-sm);
+    display: flex;
+    gap: var(--spacing-xs);
+    opacity: 0;
+    transition: opacity var(--transition-normal);
+}
+
+.todo-item:hover .todo-actions {
+    opacity: 1;
+}
+
+.todo-action-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--transition-fast);
+    padding: 0;
+}
+
+.todo-action-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
+    transform: translateY(-1px);
+}
+
+.todo-action-btn svg {
+    width: 16px;
+    height: 16px;
+}
+
+.edit-btn:hover {
+    border-color: rgba(26, 35, 126, 0.3);
+    color: #4a5ac9;
+}
+
+.delete-btn:hover {
+    border-color: rgba(244, 67, 54, 0.3);
+    color: #f44336;
+}
+
 .todo-item.completed {
     opacity: 0.6;
 }
@@ -480,6 +534,36 @@ body::before {
     color: var(--text-secondary);
     text-decoration: line-through;
     text-decoration-color: var(--text-secondary);
+}
+
+/* Drag and drop states */
+.todo-item.dragging {
+    opacity: 0.4;
+    transform: scale(0.98);
+}
+
+.todo-item.drag-over {
+    border-color: rgba(26, 35, 126, 0.5);
+    background: rgba(26, 35, 126, 0.1);
+    transform: translateY(-2px);
+}
+
+/* Drag handle indicator */
+.todo-item::after {
+    content: '⋮⋮';
+    position: absolute;
+    left: var(--spacing-sm);
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-tertiary);
+    font-size: 12px;
+    letter-spacing: 2px;
+    opacity: 0;
+    transition: opacity var(--transition-fast);
+}
+
+.todo-item:hover::after {
+    opacity: 0.5;
 }
 
 /* Floating Add Button */
@@ -545,7 +629,9 @@ body::before {
     width: 90%;
     max-width: 500px;
     padding: var(--spacing-xl);
-    background: var(--bg-primary);
+    background: rgba(20, 20, 20, 0.7);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 16px;
     box-shadow: var(--shadow-lg);
     animation: slideUp 0.3s ease;
@@ -633,6 +719,60 @@ button {
 
 .btn-danger:hover {
     background: #d32f2f;
+}
+
+/* Priority Toggle */
+.priority-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-xs);
+    margin: var(--spacing-lg) 0;
+    padding: var(--spacing-sm) var(--spacing-lg);
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    color: var(--text-secondary);
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.priority-toggle svg {
+    opacity: 0.6;
+    transition: all var(--transition-fast);
+}
+
+.priority-toggle:hover {
+    background: rgba(255, 255, 255, 0.08);
+    transform: translateY(-1px);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.priority-toggle.active {
+    background: rgba(26, 35, 126, 0.2);
+    border: 2px solid rgba(26, 35, 126, 0.6);
+    color: #4a5ac9;
+}
+
+.priority-toggle.active svg {
+    opacity: 1;
+}
+
+/* Priority flag on todo items */
+.todo-priority-flag {
+    position: absolute;
+    top: 50%;
+    right: calc(var(--spacing-lg) + 80px); /* Space for action buttons */
+    transform: translateY(-50%);
+    color: var(--text-secondary);
+    opacity: 0.7;
+}
+
+.todo-priority-flag svg {
+    width: 14px;
+    height: 14px;
 }
 
 /* Responsive Design */

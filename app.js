@@ -1,17 +1,24 @@
 // Initialize InstantDB
 const APP_ID = '986fb340-0e2c-459c-93c9-e38917007a49';
-const db = instantdb.init({ appId: APP_ID });
+let db;
+try {
+    db = instantdb.init({ appId: APP_ID });
+    console.log('InstantDB initialized');
+} catch (error) {
+    console.error('Failed to initialize InstantDB:', error);
+}
 
 // State management
 let currentUser = { id: 'demo-user' }; // Temporary demo user
 let currentEditingTodo = null;
+let selectedPriority = 'normal'; // Default priority
 
 // Initialize demo todos
 let todos = [
-    { id: '1', text: 'Design the perfect minimal todo app', completed: true, userId: 'demo-user', createdAt: Date.now() - 3600000, completedAt: Date.now() - 1800000 },
-    { id: '2', text: 'Implement Magic Codes authentication', completed: false, userId: 'demo-user', createdAt: Date.now() - 1800000 },
-    { id: '3', text: 'Add smooth animations and transitions', completed: false, userId: 'demo-user', createdAt: Date.now() - 900000 },
-    { id: '4', text: 'Deploy to Vercel', completed: false, userId: 'demo-user', createdAt: Date.now() }
+    { id: '1', text: 'Design the perfect minimal todo app', completed: true, userId: 'demo-user', createdAt: Date.now() - 3600000, completedAt: Date.now() - 1800000, order: 0, priority: 'high' },
+    { id: '2', text: 'Implement Magic Codes authentication', completed: false, userId: 'demo-user', createdAt: Date.now() - 1800000, order: 1, priority: 'normal' },
+    { id: '3', text: 'Add smooth animations and transitions', completed: false, userId: 'demo-user', createdAt: Date.now() - 900000, order: 2, priority: 'normal' },
+    { id: '4', text: 'Deploy to Vercel', completed: false, userId: 'demo-user', createdAt: Date.now(), order: 3, priority: 'high' }
 ];
 
 // DOM Elements
@@ -40,6 +47,7 @@ let completedTodayCountEl = null;
 
 // Initialize app
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('App initializing...');
     setupEventListeners();
     checkAuthState();
 });
@@ -69,6 +77,20 @@ function setupEventListeners() {
     editTodoInput.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') handleUpdateTodo();
     });
+    
+    // Priority toggle event listeners
+    document.querySelectorAll('.priority-toggle').forEach(btn => {
+        btn.addEventListener('click', handlePriorityToggle);
+    });
+}
+
+// Handle priority toggle
+function handlePriorityToggle(e) {
+    const button = e.currentTarget;
+    button.classList.toggle('active');
+    
+    // If active, set high priority, otherwise normal
+    selectedPriority = button.classList.contains('active') ? 'high' : 'normal';
 }
 
 // Check authentication state
@@ -296,10 +318,79 @@ function renderTodos(todos) {
     emptyState.classList.add('hidden');
     updateStats();
     
-    todos.forEach(todo => {
+    // Sort todos by order before rendering
+    const sortedTodos = [...todos].sort((a, b) => a.order - b.order);
+    
+    sortedTodos.forEach(todo => {
         const todoItem = createTodoElement(todo);
         todoList.appendChild(todoItem);
     });
+}
+
+// Drag and drop state
+let draggedElement = null;
+let draggedTodoId = null;
+
+// Drag and drop handlers
+function handleDragStart(e) {
+    draggedElement = this;
+    draggedTodoId = this.dataset.todoId;
+    this.classList.add('dragging');
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/html', this.innerHTML);
+}
+
+function handleDragEnter(e) {
+    if (this !== draggedElement) {
+        this.classList.add('drag-over');
+    }
+}
+
+function handleDragOver(e) {
+    if (e.preventDefault) {
+        e.preventDefault();
+    }
+    e.dataTransfer.dropEffect = 'move';
+    return false;
+}
+
+function handleDragLeave(e) {
+    this.classList.remove('drag-over');
+}
+
+function handleDrop(e) {
+    if (e.stopPropagation) {
+        e.stopPropagation();
+    }
+    
+    if (draggedElement !== this) {
+        // Get the dragged todo and the target todo
+        const draggedTodo = todos.find(t => t.id === draggedTodoId);
+        const targetTodoId = this.dataset.todoId;
+        const targetTodo = todos.find(t => t.id === targetTodoId);
+        
+        if (draggedTodo && targetTodo) {
+            // Swap orders
+            const tempOrder = draggedTodo.order;
+            draggedTodo.order = targetTodo.order;
+            targetTodo.order = tempOrder;
+            
+            // Re-render todos
+            renderTodos(todos);
+        }
+    }
+    
+    return false;
+}
+
+function handleDragEnd(e) {
+    // Clean up
+    const items = document.querySelectorAll('.todo-item');
+    items.forEach(item => {
+        item.classList.remove('dragging', 'drag-over');
+    });
+    draggedElement = null;
+    draggedTodoId = null;
 }
 
 // Create todo element
@@ -307,6 +398,15 @@ function createTodoElement(todo) {
     const li = document.createElement('li');
     li.className = `todo-item ${todo.completed ? 'completed' : ''}`;
     li.dataset.todoId = todo.id;
+    li.draggable = true;
+    
+    // Drag event handlers
+    li.addEventListener('dragstart', handleDragStart);
+    li.addEventListener('dragenter', handleDragEnter);
+    li.addEventListener('dragover', handleDragOver);
+    li.addEventListener('dragleave', handleDragLeave);
+    li.addEventListener('drop', handleDrop);
+    li.addEventListener('dragend', handleDragEnd);
     
     const checkbox = document.createElement('input');
     checkbox.type = 'checkbox';
@@ -314,25 +414,51 @@ function createTodoElement(todo) {
     checkbox.checked = todo.completed;
     checkbox.addEventListener('change', (e) => toggleTodoComplete(todo.id, e.target.checked));
     
+    // Add priority flag for high priority items only
+    let priorityFlag = null;
+    if (todo.priority === 'high') {
+        priorityFlag = document.createElement('span');
+        priorityFlag.className = 'todo-priority-flag';
+        priorityFlag.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M14.4 6L14 4H5v17h2v-7h5.6l.4 2h7V6z"/></svg>';
+    }
+    
     const text = document.createElement('span');
     text.className = 'todo-text';
     text.textContent = todo.text;
-    text.addEventListener('click', () => showEditModal(todo));
     
-    // Long press for delete
-    let pressTimer;
-    text.addEventListener('mousedown', () => {
-        pressTimer = setTimeout(() => {
-            if (confirm('Delete this todo?')) {
-                deleteTodo(todo.id);
-            }
-        }, 500);
+    // Create action buttons container
+    const actions = document.createElement('div');
+    actions.className = 'todo-actions';
+    
+    // Edit button
+    const editBtn = document.createElement('button');
+    editBtn.className = 'todo-action-btn edit-btn';
+    editBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>';
+    editBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        showEditModal(todo);
     });
-    text.addEventListener('mouseup', () => clearTimeout(pressTimer));
-    text.addEventListener('mouseleave', () => clearTimeout(pressTimer));
     
+    // Delete button
+    const deleteBtn = document.createElement('button');
+    deleteBtn.className = 'todo-action-btn delete-btn';
+    deleteBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>';
+    deleteBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (confirm('Delete this todo?')) {
+            deleteTodo(todo.id);
+        }
+    });
+    
+    actions.appendChild(editBtn);
+    actions.appendChild(deleteBtn);
+    
+    if (priorityFlag) {
+        li.appendChild(priorityFlag);
+    }
     li.appendChild(checkbox);
     li.appendChild(text);
+    li.appendChild(actions);
     
     return li;
 }
@@ -342,6 +468,13 @@ function showAddModal() {
     addModal.classList.remove('hidden');
     newTodoInput.value = '';
     newTodoInput.focus();
+    
+    // Reset priority to normal
+    selectedPriority = 'normal';
+    const priorityToggle = addModal.querySelector('.priority-toggle');
+    if (priorityToggle) {
+        priorityToggle.classList.remove('active');
+    }
 }
 
 // Hide add modal
@@ -357,6 +490,13 @@ function showEditModal(todo) {
     editTodoInput.value = todo.text;
     editTodoInput.focus();
     editTodoInput.select();
+    
+    // Set current priority
+    selectedPriority = todo.priority || 'normal';
+    const priorityToggle = editModal.querySelector('.priority-toggle');
+    if (priorityToggle) {
+        priorityToggle.classList.toggle('active', selectedPriority === 'high');
+    }
 }
 
 // Hide edit modal
@@ -376,12 +516,15 @@ async function handleAddTodo() {
     }
     
     // For now, add to local array
+    const maxOrder = Math.max(...todos.map(t => t.order), -1);
     const newTodo = {
         id: Date.now().toString(),
         text,
         completed: false,
         userId: currentUser.id,
-        createdAt: Date.now()
+        createdAt: Date.now(),
+        order: maxOrder + 1,
+        priority: selectedPriority
     };
     
     todos.unshift(newTodo); // Add to beginning
@@ -421,6 +564,7 @@ async function handleUpdateTodo() {
     const todoIndex = todos.findIndex(t => t.id === currentEditingTodo.id);
     if (todoIndex !== -1) {
         todos[todoIndex].text = text;
+        todos[todoIndex].priority = selectedPriority;
         renderTodos(todos);
     }
     hideEditModal();

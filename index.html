@@ -77,6 +77,11 @@
                 <div class="modal-content">
                     <h3>Add New Todo</h3>
                     <input type="text" id="new-todo-input" class="todo-input" placeholder="What needs to be done?" autofocus>
+                    <button class="priority-toggle" data-priority="high" title="Toggle high priority">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M14.4 6L14 4H5v17h2v-7h5.6l.4 2h7V6z"/>
+                        </svg>
+                    </button>
                     <div class="modal-actions">
                         <button id="cancel-add" class="btn-secondary">Cancel</button>
                         <button id="confirm-add" class="btn-primary">Add</button>
@@ -90,6 +95,11 @@
                 <div class="modal-content">
                     <h3>Edit Todo</h3>
                     <input type="text" id="edit-todo-input" class="todo-input" placeholder="Update your todo">
+                    <button class="priority-toggle" id="edit-priority-toggle" data-priority="high" title="Toggle high priority">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M14.4 6L14 4H5v17h2v-7h5.6l.4 2h7V6z"/>
+                        </svg>
+                    </button>
                     <div class="modal-actions">
                         <button id="delete-todo" class="btn-danger">Delete</button>
                         <button id="cancel-edit" class="btn-secondary">Cancel</button>
@@ -100,7 +110,7 @@
         </div>
     </div>
 
-    <!-- <script src="https://unpkg.com/@instantdb/core"></script> -->
-    <script src="app-simple.js"></script>
+    <script src="https://unpkg.com/@instantdb/core"></script>
+    <script src="app.js"></script>
 </body>
 </html>
