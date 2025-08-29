@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Todo App</title>
+</head>
+<body>
+    <h1>Debug Test</h1>
+    <button onclick="testModal()">Test Modal</button>
+    <div id="test-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5);">
+        <div style="background: white; padding: 20px; margin: 50px auto; width: 300px;">
+            <h2>Test Modal</h2>
+            <button onclick="hideModal()">Close</button>
+        </div>
+    </div>
+    
+    <script>
+        console.log('Script loaded');
+        
+        function testModal() {
+            console.log('Opening modal');
+            document.getElementById('test-modal').style.display = 'block';
+        }
+        
+        function hideModal() {
+            console.log('Closing modal');
+            document.getElementById('test-modal').style.display = 'none';
+        }
+        
+        // Test if DOM is ready
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('DOM loaded');
+            
+            // Check if elements exist
+            const elements = [
+                'app',
+                'auth-container',
+                'main-container',
+                'add-btn',
+                'add-modal',
+                'todo-list'
+            ];
+            
+            elements.forEach(id => {
+                const el = document.getElementById(id);
+                console.log(`Element #${id}:`, el ? 'Found' : 'NOT FOUND');
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minimal Todo - Premium Experience</title>
+    <link rel="stylesheet" href="styles-premium.css">
+    <link rel="stylesheet" href="styles-cards.css">
+    <link rel="stylesheet" href="styles-modal.css">
+</head>
+<body>
+    <div id="app">
+        <!-- Main App Container -->
+        <div id="main-container" class="main-container">
+            <header class="app-header">
+                <div class="header-content">
+                    <div class="header-main">
+                        <h2 class="header-greeting" id="greeting">Good evening</h2>
+                        <h1 class="header-title">My Tasks</h1>
+                        <div class="header-date">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                <line x1="16" y1="2" x2="16" y2="6"></line>
+                                <line x1="8" y1="2" x2="8" y2="6"></line>
+                                <line x1="3" y1="10" x2="21" y2="10"></line>
+                            </svg>
+                            <span id="current-date">Thursday, November 14</span>
+                        </div>
+                    </div>
+                    
+                    <div class="stats-container">
+                        <div class="stat-card">
+                            <div class="stat-value" id="completed-count">0</div>
+                            <div class="stat-label">Completed</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="total-count">0</div>
+                            <div class="stat-label">Total</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="streak-count">0</div>
+                            <div class="stat-label">Day Streak</div>
+                        </div>
+                    </div>
+                    
+                    <div class="profile-section">
+                        <div class="profile-avatar">U</div>
+                        <button id="signout-btn" class="signout-btn">Sign Out</button>
+                    </div>
+                </div>
+            </header>
+
+            <main class="todo-container">
+                <div class="todo-section">
+                    <div class="section-header">
+                        <h3 class="section-title">Today</h3>
+                        <span class="section-count" id="today-count">0 tasks</span>
+                    </div>
+                    
+                    <div id="empty-state" class="empty-state hidden">
+                        <div class="empty-state-icon">✨</div>
+                        <p>No tasks yet. Click the + button to add your first task!</p>
+                    </div>
+                    
+                    <ul id="todo-list" class="todo-list">
+                        <!-- Todos will be dynamically inserted here -->
+                    </ul>
+                </div>
+            </main>
+
+            <!-- Floating Add Button -->
+            <button id="add-btn" class="add-btn" aria-label="Add new todo">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+                </svg>
+            </button>
+
+            <!-- Add Todo Modal -->
+            <div id="add-modal" class="modal hidden">
+                <div class="modal-overlay"></div>
+                <div class="modal-content">
+                    <h3>Create New Task</h3>
+                    <p>What would you like to accomplish?</p>
+                    
+                    <input 
+                        type="text" 
+                        id="new-todo-input" 
+                        class="todo-input" 
+                        placeholder="e.g., Review project proposal"
+                        autofocus
+                    >
+                    
+                    <div class="input-options">
+                        <div class="priority-selector">
+                            <button class="priority-btn" data-priority="low">Low</button>
+                            <button class="priority-btn active" data-priority="medium">Medium</button>
+                            <button class="priority-btn" data-priority="high">High</button>
+                        </div>
+                        <input type="date" class="date-input" id="due-date">
+                    </div>
+                    
+                    <div class="modal-actions">
+                        <button id="cancel-add" class="btn-secondary">Cancel</button>
+                        <button id="confirm-add" class="btn-primary">Create Task</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Edit Todo Modal -->
+            <div id="edit-modal" class="modal hidden">
+                <div class="modal-overlay"></div>
+                <div class="modal-content">
+                    <h3>Edit Task</h3>
+                    <p>Update your task details</p>
+                    
+                    <input 
+                        type="text" 
+                        id="edit-todo-input" 
+                        class="todo-input" 
+                        placeholder="Task description"
+                    >
+                    
+                    <div class="input-options">
+                        <div class="priority-selector">
+                            <button class="priority-btn" data-priority="low">Low</button>
+                            <button class="priority-btn" data-priority="medium">Medium</button>
+                            <button class="priority-btn" data-priority="high">High</button>
+                        </div>
+                        <input type="date" class="date-input" id="edit-due-date">
+                    </div>
+                    
+                    <div class="modal-actions">
+                        <button id="delete-todo" class="btn-danger">Delete</button>
+                        <button id="cancel-edit" class="btn-secondary">Cancel</button>
+                        <button id="confirm-edit" class="btn-primary">Save Changes</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app-premium.js"></script>
+</body>
+</html>

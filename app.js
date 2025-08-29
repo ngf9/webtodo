@@ -5,6 +5,7 @@ const db = instantdb.init({ appId: APP_ID });
 // State management
 let currentUser = { id: 'demo-user' }; // Temporary demo user
 let currentEditingTodo = null;
+let todos = []; // Store todos in memory for now
 
 // DOM Elements
 const authContainer = document.getElementById('auth-container');
@@ -179,7 +180,7 @@ function subscribeToTodos() {
     if (!currentUser) return;
     
     // For now, use demo todos while we work on the design
-    const demoTodos = [
+    todos = [
         { id: '1', text: 'Design the perfect minimal todo app', completed: true, userId: 'demo-user', createdAt: Date.now() - 3600000 },
         { id: '2', text: 'Implement Magic Codes authentication', completed: false, userId: 'demo-user', createdAt: Date.now() - 1800000 },
         { id: '3', text: 'Add smooth animations and transitions', completed: false, userId: 'demo-user', createdAt: Date.now() - 900000 },
@@ -187,7 +188,7 @@ function subscribeToTodos() {
     ];
     
     // Render demo todos
-    renderTodos(demoTodos);
+    renderTodos(todos);
     
     // Commented out for now while we work on design
     /*
@@ -303,6 +304,20 @@ async function handleAddTodo() {
         return;
     }
     
+    // For now, add to local array
+    const newTodo = {
+        id: Date.now().toString(),
+        text,
+        completed: false,
+        userId: currentUser.id,
+        createdAt: Date.now()
+    };
+    
+    todos.unshift(newTodo); // Add to beginning
+    renderTodos(todos);
+    hideAddModal();
+    
+    /* Commented out for now
     try {
         await db.transact(
             db.tx.todos[db.id()].update({
@@ -317,6 +332,7 @@ async function handleAddTodo() {
         console.error('Add todo error:', error);
         showError('Failed to add todo');
     }
+    */
 }
 
 // Handle update todo
@@ -330,6 +346,15 @@ async function handleUpdateTodo() {
         return;
     }
     
+    // Update in local array
+    const todoIndex = todos.findIndex(t => t.id === currentEditingTodo.id);
+    if (todoIndex !== -1) {
+        todos[todoIndex].text = text;
+        renderTodos(todos);
+    }
+    hideEditModal();
+    
+    /* Commented out for now
     try {
         await db.transact(
             db.tx.todos[currentEditingTodo.id].update({
@@ -341,23 +366,27 @@ async function handleUpdateTodo() {
         console.error('Update todo error:', error);
         showError('Failed to update todo');
     }
+    */
 }
 
 // Handle delete todo
 async function handleDeleteTodo() {
     if (!currentEditingTodo) return;
     
-    try {
-        await deleteTodo(currentEditingTodo.id);
-        hideEditModal();
-    } catch (error) {
-        console.error('Delete todo error:', error);
-        showError('Failed to delete todo');
-    }
+    deleteTodo(currentEditingTodo.id);
+    hideEditModal();
 }
 
 // Toggle todo complete status
 async function toggleTodoComplete(todoId, completed) {
+    // Update in local array
+    const todoIndex = todos.findIndex(t => t.id === todoId);
+    if (todoIndex !== -1) {
+        todos[todoIndex].completed = completed;
+        renderTodos(todos);
+    }
+    
+    /* Commented out for now
     try {
         await db.transact(
             db.tx.todos[todoId].update({
@@ -368,10 +397,16 @@ async function toggleTodoComplete(todoId, completed) {
         console.error('Toggle todo error:', error);
         showError('Failed to update todo');
     }
+    */
 }
 
 // Delete todo
 async function deleteTodo(todoId) {
+    // Delete from local array
+    todos = todos.filter(t => t.id !== todoId);
+    renderTodos(todos);
+    
+    /* Commented out for now
     try {
         await db.transact(
             db.tx.todos[todoId].delete()
@@ -380,6 +415,7 @@ async function deleteTodo(todoId) {
         console.error('Delete todo error:', error);
         showError('Failed to delete todo');
     }
+    */
 }
 
 // Show error message
