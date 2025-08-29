@@ -38,9 +38,22 @@
         <!-- Main App Container -->
         <div id="main-container" class="main-container">
             <header class="app-header">
-                <h1 class="header-title">My Todos</h1>
+                <h1 class="header-title">Bias Towards Action: My To Do's</h1>
                 <button id="signout-btn" class="signout-btn">Sign Out</button>
             </header>
+
+            <div class="dashboard-section">
+                <div class="dashboard-cards">
+                    <div class="stat-card">
+                        <div class="stat-value" id="pending-count">0</div>
+                        <div class="stat-label">Pending</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="completed-today-count">0</div>
+                        <div class="stat-label">Completed</div>
+                    </div>
+                </div>
+            </div>
 
             <main class="todo-container">
                 <div id="empty-state" class="empty-state hidden">

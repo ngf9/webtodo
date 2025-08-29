@@ -5,7 +5,14 @@ const db = instantdb.init({ appId: APP_ID });
 // State management
 let currentUser = { id: 'demo-user' }; // Temporary demo user
 let currentEditingTodo = null;
-let todos = []; // Store todos in memory for now
+
+// Initialize demo todos
+let todos = [
+    { id: '1', text: 'Design the perfect minimal todo app', completed: true, userId: 'demo-user', createdAt: Date.now() - 3600000, completedAt: Date.now() - 1800000 },
+    { id: '2', text: 'Implement Magic Codes authentication', completed: false, userId: 'demo-user', createdAt: Date.now() - 1800000 },
+    { id: '3', text: 'Add smooth animations and transitions', completed: false, userId: 'demo-user', createdAt: Date.now() - 900000 },
+    { id: '4', text: 'Deploy to Vercel', completed: false, userId: 'demo-user', createdAt: Date.now() }
+];
 
 // DOM Elements
 const authContainer = document.getElementById('auth-container');
@@ -28,6 +35,8 @@ const addModal = document.getElementById('add-modal');
 const editModal = document.getElementById('edit-modal');
 const newTodoInput = document.getElementById('new-todo-input');
 const editTodoInput = document.getElementById('edit-todo-input');
+let pendingCountEl = null;
+let completedTodayCountEl = null;
 
 // Initialize app
 document.addEventListener('DOMContentLoaded', () => {
@@ -179,16 +188,14 @@ function showAuthScreen() {
 function subscribeToTodos() {
     if (!currentUser) return;
     
-    // For now, use demo todos while we work on the design
-    todos = [
-        { id: '1', text: 'Design the perfect minimal todo app', completed: true, userId: 'demo-user', createdAt: Date.now() - 3600000 },
-        { id: '2', text: 'Implement Magic Codes authentication', completed: false, userId: 'demo-user', createdAt: Date.now() - 1800000 },
-        { id: '3', text: 'Add smooth animations and transitions', completed: false, userId: 'demo-user', createdAt: Date.now() - 900000 },
-        { id: '4', text: 'Deploy to Vercel', completed: false, userId: 'demo-user', createdAt: Date.now() }
-    ];
-    
-    // Render demo todos
+    // Render current todos
     renderTodos(todos);
+    
+    // Force update stats after a short delay to ensure DOM is ready
+    setTimeout(() => {
+        console.log('Force updating stats...');
+        updateStats();
+    }, 100);
     
     // Commented out for now while we work on design
     /*
@@ -214,16 +221,80 @@ function subscribeToTodos() {
     */
 }
 
+// Update statistics
+function updateStats() {
+    console.log('updateStats called!');
+    
+    if (!pendingCountEl || !completedTodayCountEl) {
+        console.error('Stat elements not found!', { pendingCountEl, completedTodayCountEl });
+        return;
+    }
+    
+    const pending = todos.filter(todo => !todo.completed).length;
+    const completed = todos.filter(todo => todo.completed).length;
+    
+    console.log('=== STATS UPDATE ===');
+    console.log('Total todos:', todos.length);
+    console.log('Pending (not checked):', pending);
+    console.log('Completed (checked):', completed);
+    console.log('Todos details:', todos.map(t => ({ text: t.text, completed: t.completed })));
+    
+    // Directly set the text content to test
+    pendingCountEl.textContent = pending;
+    completedTodayCountEl.textContent = completed;
+    
+    console.log('Stats should now show:', { pending, completed });
+}
+
+// Make updateStats and todos globally available for testing
+window.updateStats = updateStats;
+window.todos = todos;
+
+// Animate number changes
+function animateValue(element, start, end, duration) {
+    // Handle NaN cases
+    start = isNaN(start) ? 0 : start;
+    end = isNaN(end) ? 0 : end;
+    
+    // If no change, just set the value
+    if (start === end) {
+        element.textContent = end;
+        return;
+    }
+    
+    const startTimestamp = Date.now();
+    const step = () => {
+        const current = Date.now();
+        const progress = Math.min((current - startTimestamp) / duration, 1);
+        const easeOutQuart = 1 - Math.pow(1 - progress, 4);
+        element.textContent = Math.floor(easeOutQuart * (end - start) + start);
+        
+        if (progress < 1) {
+            requestAnimationFrame(step);
+        }
+    };
+    requestAnimationFrame(step);
+}
+
 // Render todos
 function renderTodos(todos) {
+    // Make sure we have the stat elements
+    if (!pendingCountEl || !completedTodayCountEl) {
+        pendingCountEl = document.getElementById('pending-count');
+        completedTodayCountEl = document.getElementById('completed-today-count');
+        console.log('Getting stat elements in renderTodos:', { pendingCountEl, completedTodayCountEl });
+    }
+    
     todoList.innerHTML = '';
     
     if (!todos || todos.length === 0) {
         emptyState.classList.remove('hidden');
+        updateStats();
         return;
     }
     
     emptyState.classList.add('hidden');
+    updateStats();
     
     todos.forEach(todo => {
         const todoItem = createTodoElement(todo);
@@ -241,7 +312,7 @@ function createTodoElement(todo) {
     checkbox.type = 'checkbox';
     checkbox.className = 'todo-checkbox';
     checkbox.checked = todo.completed;
-    checkbox.addEventListener('change', () => toggleTodoComplete(todo.id, !todo.completed));
+    checkbox.addEventListener('change', (e) => toggleTodoComplete(todo.id, e.target.checked));
     
     const text = document.createElement('span');
     text.className = 'todo-text';
@@ -379,10 +450,18 @@ async function handleDeleteTodo() {
 
 // Toggle todo complete status
 async function toggleTodoComplete(todoId, completed) {
+    console.log('Toggle todo:', todoId, completed);
+    
     // Update in local array
     const todoIndex = todos.findIndex(t => t.id === todoId);
     if (todoIndex !== -1) {
         todos[todoIndex].completed = completed;
+        if (completed) {
+            todos[todoIndex].completedAt = Date.now();
+        } else {
+            delete todos[todoIndex].completedAt;
+        }
+        console.log('Updated todo:', todos[todoIndex]);
         renderTodos(todos);
     }
     

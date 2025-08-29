@@ -40,13 +40,13 @@
     :root {
         --text-primary: #ffffff;
         --text-secondary: #b0b0b0;
-        --bg-primary: #121212;
-        --bg-secondary: #1e1e1e;
-        --border-color: #333333;
+        --bg-primary: #0a0a0a;
+        --bg-secondary: #141414;
+        --border-color: #2a2a2a;
         --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.3);
         --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
         --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.5);
-        --primary-glow: rgba(26, 35, 126, 0.5);
+        --primary-glow: rgba(26, 35, 126, 0.2);
     }
 }
 
@@ -61,10 +61,24 @@ body {
     font-family: var(--font-family);
     font-size: var(--font-size-md);
     color: var(--text-primary);
-    background-color: var(--bg-primary);
+    background: var(--bg-primary);
     line-height: 1.6;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    position: relative;
+}
+
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(ellipse at top center, rgba(26, 35, 126, 0.2) 0%, transparent 70%),
+                radial-gradient(ellipse at bottom right, rgba(26, 35, 126, 0.12) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: -1;
 }
 
 /* Utility Classes */
@@ -86,14 +100,15 @@ body {
     align-items: center;
     justify-content: center;
     padding: var(--spacing-lg);
-    background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
 }
 
 .auth-box {
     width: 100%;
     max-width: 400px;
     padding: var(--spacing-xl);
-    background: var(--bg-primary);
+    background: rgba(20, 20, 20, 0.4);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(42, 42, 42, 0.6);
     border-radius: 16px;
     box-shadow: var(--shadow-lg);
 }
@@ -103,7 +118,7 @@ body {
     font-weight: 700;
     text-align: center;
     margin-bottom: var(--spacing-xl);
-    background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+    background: linear-gradient(135deg, #4a5ac9, #1a237e);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -145,7 +160,7 @@ body {
     font-size: var(--font-size-md);
     font-weight: 600;
     color: white;
-    background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+    background: var(--primary-color);
     border: none;
     border-radius: 8px;
     cursor: pointer;
@@ -220,16 +235,89 @@ body {
     justify-content: space-between;
     align-items: center;
     padding: var(--spacing-xl) 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     margin-bottom: var(--spacing-lg);
+}
+
+/* Dashboard Section */
+.dashboard-section {
+    padding: var(--spacing-lg) 0;
+    margin-bottom: var(--spacing-lg);
+}
+
+/* Dashboard Cards */
+.dashboard-cards {
+    display: flex;
+    gap: var(--spacing-md);
+    justify-content: center;
+}
+
+.stat-card {
+    background: rgba(30, 30, 30, 0.5);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(50, 50, 50, 0.3);
+    border-radius: 12px;
+    padding: var(--spacing-lg) var(--spacing-xl);
+    text-align: center;
+    width: 180px;
+    height: 100px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    transition: all var(--transition-normal);
+    animation: fadeInUp 0.6s ease-out;
+}
+
+.stat-card:nth-child(1) {
+    animation-delay: 0.1s;
+}
+
+.stat-card:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(26, 35, 126, 0.2);
+    border-color: rgba(26, 35, 126, 0.3);
+}
+
+.stat-value {
+    font-size: var(--font-size-xl);
+    font-weight: 700;
+    color: white;
+    line-height: 1;
+    margin-bottom: var(--spacing-xs);
+    transition: transform var(--transition-normal);
+}
+
+.stat-card:hover .stat-value {
+    transform: scale(1.1);
+}
+
+.stat-label {
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
 }
 
 .header-title {
     font-size: var(--font-size-xl);
     font-weight: 700;
-    background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    color: white;
 }
 
 .signout-btn {
@@ -290,7 +378,9 @@ body {
     align-items: center;
     padding: var(--spacing-md) var(--spacing-lg);
     margin-bottom: var(--spacing-sm);
-    background: var(--bg-secondary);
+    background: rgba(30, 30, 30, 0.5);
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(50, 50, 50, 0.3);
     border-radius: 12px;
     transition: all var(--transition-normal);
     cursor: pointer;
@@ -340,7 +430,7 @@ body {
 }
 
 .todo-checkbox:checked {
-    background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+    background: var(--primary-color);
     border-color: var(--primary-color);
     animation: checkmark-pop 0.3s ease;
 }
@@ -400,10 +490,10 @@ body {
     width: 60px;
     height: 60px;
     border-radius: 50%;
-    background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+    background: var(--primary-color);
     color: white;
     border: none;
-    box-shadow: var(--shadow-md), 0 0 30px var(--primary-glow);
+    box-shadow: var(--shadow-lg);
     cursor: pointer;
     transition: all var(--transition-normal);
     display: flex;
@@ -412,26 +502,10 @@ body {
     z-index: 100;
 }
 
-.add-btn::before {
-    content: '';
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    background: radial-gradient(circle, var(--primary-glow) 0%, transparent 70%);
-    transform: scale(1.5);
-    opacity: 0.5;
-    animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-    0%, 100% { transform: scale(1.5); opacity: 0.5; }
-    50% { transform: scale(1.8); opacity: 0.3; }
-}
 
 .add-btn:hover {
     transform: scale(1.1) rotate(90deg);
-    box-shadow: var(--shadow-lg), 0 0 40px var(--primary-glow);
+    box-shadow: var(--shadow-lg);
 }
 
 .add-btn:active {
