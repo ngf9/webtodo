@@ -12,16 +12,26 @@
         <div id="auth-container" class="auth-container">
             <div class="auth-box">
                 <h1 class="app-title">Minimal Todo</h1>
-                <form id="auth-form" class="auth-form">
-                    <h2 id="auth-title">Sign In</h2>
-                    <input type="email" id="email" placeholder="Email" class="auth-input" required>
-                    <input type="password" id="password" placeholder="Password" class="auth-input" required>
-                    <button type="submit" id="auth-submit" class="auth-button">Sign In</button>
-                    <p class="auth-switch">
-                        <span id="auth-switch-text">Don't have an account?</span>
-                        <a href="#" id="auth-switch-link">Sign Up</a>
-                    </p>
-                </form>
+                <!-- Email Step -->
+                <div id="email-step" class="auth-step">
+                    <h2>Sign in with magic code</h2>
+                    <p class="auth-subtitle">We'll send you a code to sign in</p>
+                    <form id="email-form" class="auth-form">
+                        <input type="email" id="email" placeholder="Enter your email" class="auth-input" required>
+                        <button type="submit" id="send-code-btn" class="auth-button">Send Code</button>
+                    </form>
+                </div>
+
+                <!-- Code Step -->
+                <div id="code-step" class="auth-step hidden">
+                    <h2>Enter your code</h2>
+                    <p class="auth-subtitle">We sent a code to <span id="sent-email"></span></p>
+                    <form id="code-form" class="auth-form">
+                        <input type="text" id="code-input" placeholder="Enter 6-digit code" class="auth-input" maxlength="6" pattern="[0-9]{6}" required>
+                        <button type="submit" id="verify-code-btn" class="auth-button">Verify Code</button>
+                    </form>
+                    <button id="back-to-email" class="link-button">Use a different email</button>
+                </div>
             </div>
         </div>
 

@@ -6,17 +6,21 @@ const db = instantdb.init({ appId: APP_ID });
 let currentUser = null;
 let currentEditingTodo = null;
 let isAuthenticating = false;
+let sentEmail = '';
 
 // DOM Elements
 const authContainer = document.getElementById('auth-container');
 const mainContainer = document.getElementById('main-container');
-const authForm = document.getElementById('auth-form');
-const authTitle = document.getElementById('auth-title');
-const authSubmit = document.getElementById('auth-submit');
-const authSwitchText = document.getElementById('auth-switch-text');
-const authSwitchLink = document.getElementById('auth-switch-link');
+const emailStep = document.getElementById('email-step');
+const codeStep = document.getElementById('code-step');
+const emailForm = document.getElementById('email-form');
+const codeForm = document.getElementById('code-form');
 const emailInput = document.getElementById('email');
-const passwordInput = document.getElementById('password');
+const codeInput = document.getElementById('code-input');
+const sentEmailSpan = document.getElementById('sent-email');
+const sendCodeBtn = document.getElementById('send-code-btn');
+const verifyCodeBtn = document.getElementById('verify-code-btn');
+const backToEmailBtn = document.getElementById('back-to-email');
 const signoutBtn = document.getElementById('signout-btn');
 const todoList = document.getElementById('todo-list');
 const emptyState = document.getElementById('empty-state');
@@ -26,9 +30,6 @@ const editModal = document.getElementById('edit-modal');
 const newTodoInput = document.getElementById('new-todo-input');
 const editTodoInput = document.getElementById('edit-todo-input');
 
-// Auth state
-let isSignUp = false;
-
 // Initialize app
 document.addEventListener('DOMContentLoaded', () => {
     setupEventListeners();
@@ -37,9 +38,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Setup event listeners
 function setupEventListeners() {
-    // Auth form
-    authForm.addEventListener('submit', handleAuthSubmit);
-    authSwitchLink.addEventListener('click', toggleAuthMode);
+    // Auth forms
+    emailForm.addEventListener('submit', handleSendCode);
+    codeForm.addEventListener('submit', handleVerifyCode);
+    backToEmailBtn.addEventListener('click', showEmailStep);
     signoutBtn.addEventListener('click', handleSignOut);
     
     // Todo interactions
@@ -63,17 +65,6 @@ function setupEventListeners() {
     });
 }
 
-// Toggle between sign in and sign up
-function toggleAuthMode(e) {
-    e.preventDefault();
-    isSignUp = !isSignUp;
-    
-    authTitle.textContent = isSignUp ? 'Sign Up' : 'Sign In';
-    authSubmit.textContent = isSignUp ? 'Sign Up' : 'Sign In';
-    authSwitchText.textContent = isSignUp ? 'Already have an account?' : "Don't have an account?";
-    authSwitchLink.textContent = isSignUp ? 'Sign In' : 'Sign Up';
-}
-
 // Check authentication state
 async function checkAuthState() {
     // Check if user is logged in
@@ -89,37 +80,84 @@ async function checkAuthState() {
     });
 }
 
-// Handle authentication submit
-async function handleAuthSubmit(e) {
+// Show email step
+function showEmailStep() {
+    emailStep.classList.remove('hidden');
+    codeStep.classList.add('hidden');
+    codeInput.value = '';
+    emailInput.focus();
+}
+
+// Show code step
+function showCodeStep() {
+    emailStep.classList.add('hidden');
+    codeStep.classList.remove('hidden');
+    sentEmailSpan.textContent = sentEmail;
+    codeInput.value = '';
+    codeInput.focus();
+}
+
+// Handle send magic code
+async function handleSendCode(e) {
     e.preventDefault();
     
     if (isAuthenticating) return;
     
     const email = emailInput.value.trim();
-    const password = passwordInput.value.trim();
     
-    if (!email || !password) {
-        showError('Please fill in all fields');
+    if (!email) {
+        showError('Please enter your email');
         return;
     }
     
     isAuthenticating = true;
-    authSubmit.disabled = true;
-    authSubmit.textContent = isSignUp ? 'Creating Account...' : 'Signing In...';
+    sendCodeBtn.disabled = true;
+    sendCodeBtn.textContent = 'Sending...';
     
     try {
-        if (isSignUp) {
-            await db.auth.createUser({ email, password });
-        } else {
-            await db.auth.signInWithEmail({ email, password });
-        }
+        await db.auth.sendMagicCode({ email });
+        sentEmail = email;
+        showCodeStep();
     } catch (error) {
-        console.error('Auth error:', error);
-        showError(error.message || 'Authentication failed');
+        console.error('Send code error:', error);
+        showError(error.message || 'Failed to send code');
     } finally {
         isAuthenticating = false;
-        authSubmit.disabled = false;
-        authSubmit.textContent = isSignUp ? 'Sign Up' : 'Sign In';
+        sendCodeBtn.disabled = false;
+        sendCodeBtn.textContent = 'Send Code';
+    }
+}
+
+// Handle verify magic code
+async function handleVerifyCode(e) {
+    e.preventDefault();
+    
+    if (isAuthenticating) return;
+    
+    const code = codeInput.value.trim();
+    
+    if (!code) {
+        showError('Please enter the code');
+        return;
+    }
+    
+    isAuthenticating = true;
+    verifyCodeBtn.disabled = true;
+    verifyCodeBtn.textContent = 'Verifying...';
+    
+    try {
+        await db.auth.signInWithMagicCode({ 
+            email: sentEmail, 
+            code: code 
+        });
+        // Auth state change will handle navigation
+    } catch (error) {
+        console.error('Verify code error:', error);
+        showError(error.message || 'Invalid code. Please try again.');
+    } finally {
+        isAuthenticating = false;
+        verifyCodeBtn.disabled = false;
+        verifyCodeBtn.textContent = 'Verify Code';
     }
 }
 
@@ -137,13 +175,15 @@ async function handleSignOut() {
 function showMainApp() {
     authContainer.classList.add('hidden');
     mainContainer.classList.remove('hidden');
-    authForm.reset();
+    emailForm.reset();
+    codeForm.reset();
 }
 
 // Show auth screen
 function showAuthScreen() {
     authContainer.classList.remove('hidden');
     mainContainer.classList.add('hidden');
+    showEmailStep();
 }
 
 // Subscribe to todos
