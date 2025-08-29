@@ -3,10 +3,8 @@ const APP_ID = '986fb340-0e2c-459c-93c9-e38917007a49';
 const db = instantdb.init({ appId: APP_ID });
 
 // State management
-let currentUser = null;
+let currentUser = { id: 'demo-user' }; // Temporary demo user
 let currentEditingTodo = null;
-let isAuthenticating = false;
-let sentEmail = '';
 
 // DOM Elements
 const authContainer = document.getElementById('auth-container');
@@ -38,11 +36,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Setup event listeners
 function setupEventListeners() {
-    // Auth forms
-    emailForm.addEventListener('submit', handleSendCode);
-    codeForm.addEventListener('submit', handleVerifyCode);
-    backToEmailBtn.addEventListener('click', showEmailStep);
-    signoutBtn.addEventListener('click', handleSignOut);
+    // Temporarily disable auth
+    // signoutBtn.addEventListener('click', handleSignOut);
+    signoutBtn.style.display = 'none'; // Hide sign out for now
     
     // Todo interactions
     addBtn.addEventListener('click', showAddModal);
@@ -67,17 +63,9 @@ function setupEventListeners() {
 
 // Check authentication state
 async function checkAuthState() {
-    // Check if user is logged in
-    db.auth.onAuthStateChange((authState) => {
-        if (authState.user) {
-            currentUser = authState.user;
-            showMainApp();
-            subscribeToTodos();
-        } else {
-            currentUser = null;
-            showAuthScreen();
-        }
-    });
+    // Skip auth for now, go straight to main app
+    showMainApp();
+    subscribeToTodos();
 }
 
 // Show email step
@@ -190,7 +178,19 @@ function showAuthScreen() {
 function subscribeToTodos() {
     if (!currentUser) return;
     
-    // Subscribe to user's todos
+    // For now, use demo todos while we work on the design
+    const demoTodos = [
+        { id: '1', text: 'Design the perfect minimal todo app', completed: true, userId: 'demo-user', createdAt: Date.now() - 3600000 },
+        { id: '2', text: 'Implement Magic Codes authentication', completed: false, userId: 'demo-user', createdAt: Date.now() - 1800000 },
+        { id: '3', text: 'Add smooth animations and transitions', completed: false, userId: 'demo-user', createdAt: Date.now() - 900000 },
+        { id: '4', text: 'Deploy to Vercel', completed: false, userId: 'demo-user', createdAt: Date.now() }
+    ];
+    
+    // Render demo todos
+    renderTodos(demoTodos);
+    
+    // Commented out for now while we work on design
+    /*
     const query = db.useQuery({
         todos: {
             $: {
@@ -210,6 +210,7 @@ function subscribeToTodos() {
             renderTodos(result.data.todos);
         }
     });
+    */
 }
 
 // Render todos
