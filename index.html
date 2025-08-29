@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minimal Todo</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="app">
+        <!-- Auth Container -->
+        <div id="auth-container" class="auth-container">
+            <div class="auth-box">
+                <h1 class="app-title">Minimal Todo</h1>
+                <form id="auth-form" class="auth-form">
+                    <h2 id="auth-title">Sign In</h2>
+                    <input type="email" id="email" placeholder="Email" class="auth-input" required>
+                    <input type="password" id="password" placeholder="Password" class="auth-input" required>
+                    <button type="submit" id="auth-submit" class="auth-button">Sign In</button>
+                    <p class="auth-switch">
+                        <span id="auth-switch-text">Don't have an account?</span>
+                        <a href="#" id="auth-switch-link">Sign Up</a>
+                    </p>
+                </form>
+            </div>
+        </div>
+
+        <!-- Main App Container -->
+        <div id="main-container" class="main-container hidden">
+            <header class="app-header">
+                <h1 class="header-title">My Todos</h1>
+                <button id="signout-btn" class="signout-btn">Sign Out</button>
+            </header>
+
+            <main class="todo-container">
+                <div id="empty-state" class="empty-state hidden">
+                    <p>No todos yet. Click the + button to add your first task!</p>
+                </div>
+                <ul id="todo-list" class="todo-list">
+                    <!-- Todos will be dynamically inserted here -->
+                </ul>
+            </main>
+
+            <!-- Floating Add Button -->
+            <button id="add-btn" class="add-btn" aria-label="Add new todo">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+            </button>
+
+            <!-- Add Todo Modal -->
+            <div id="add-modal" class="modal hidden">
+                <div class="modal-overlay"></div>
+                <div class="modal-content">
+                    <h3>Add New Todo</h3>
+                    <input type="text" id="new-todo-input" class="todo-input" placeholder="What needs to be done?" autofocus>
+                    <div class="modal-actions">
+                        <button id="cancel-add" class="btn-secondary">Cancel</button>
+                        <button id="confirm-add" class="btn-primary">Add</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Edit Todo Modal -->
+            <div id="edit-modal" class="modal hidden">
+                <div class="modal-overlay"></div>
+                <div class="modal-content">
+                    <h3>Edit Todo</h3>
+                    <input type="text" id="edit-todo-input" class="todo-input" placeholder="Update your todo">
+                    <div class="modal-actions">
+                        <button id="delete-todo" class="btn-danger">Delete</button>
+                        <button id="cancel-edit" class="btn-secondary">Cancel</button>
+                        <button id="confirm-edit" class="btn-primary">Save</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/@instantdb/core"></script>
+    <script src="app.js"></script>
+</body>
+</html>

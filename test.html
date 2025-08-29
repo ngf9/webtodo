@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Todo App</title>
+</head>
+<body>
+    <h1>Testing Todo App</h1>
+    <p>Open the browser console to see if InstantDB loads correctly.</p>
+    <p>Then open <a href="index.html">index.html</a> to see the full app.</p>
+    
+    <script src="https://unpkg.com/@instantdb/core"></script>
+    <script>
+        const APP_ID = '986fb340-0e2c-459c-93c9-e38917007a49';
+        const db = instantdb.init({ appId: APP_ID });
+        console.log('InstantDB initialized:', db);
+        console.log('App ID:', APP_ID);
+    </script>
+</body>
+</html>
